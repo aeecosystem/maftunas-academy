@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maftuna’s Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf2f4;--card:#fff;--ink:#12323b;--teal:#0e5666;--on:#fff;--line:#d8e6e9;--red:#c63d45;--green:#127a55;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#0b181d;--card:#13272e;--ink:#e5f2f5;--teal:#6fd6e3;--on:#06242b;--line:#25434c;--red:#ff8b90;--green:#5ddaa6;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(135deg,var(--bg) 40%,#79bcd433,#d79dc833),var(--bg);color:var(--ink);font:15px/1.45 Manrope,sans-serif;padding-bottom:90px}
+main{max-width:980px;margin:auto;padding:16px}h1{font-size:28px;margin:8px 0 16px}h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 10px 28px #0e566614}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.grid>.card{margin:0}
+.stat{color:#fff;border:0;background:linear-gradient(135deg,#6a35f0,#3558d4)}.stat:nth-child(2){background:linear-gradient(135deg,#047c72,#087fa8)}.stat:nth-child(3){background:linear-gradient(135deg,#b94f08,#946000)}.stat:nth-child(4){background:linear-gradient(135deg,#d11f55,#982187)}.stat b{display:block;font-size:26px}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.row>div{flex:1;min-width:0}small{display:block;opacity:.72}
+.ava{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(135deg,#25bfa5,#0e5666)}
+input,select{width:100%;padding:12px;margin-bottom:8px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit}
+button{font:600 14px Manrope,sans-serif;padding:10px 14px;border:0;border-radius:12px;background:var(--teal);color:var(--on);cursor:pointer}button.alt{background:transparent;color:var(--teal);border:1px solid var(--line)}
+label{display:inline-block;margin:0 10px 10px 0}label input{width:auto;margin-right:4px}.red{color:var(--red)}.green{color:var(--green)}
+.bar{height:7px;border-radius:7px;background:var(--line);margin-top:8px}.bar i{display:block;height:7px;border-radius:7px;background:#25bfa5}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;overflow-x:auto;background:linear-gradient(120deg,#17657a,#0b2b34);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}nav button{flex:1;background:none;color:#cde7ec;white-space:nowrap;font-size:12px}nav button.on{background:#fff;color:#0e5666}
+@media(min-width:820px){body{padding:0 0 0 200px}nav{right:auto;top:0;width:200px;flex-direction:column;padding:24px 12px}nav button{flex:none;text-align:left;font-size:14px;padding:13px}}
+</style>
+</head>
+<body>
+<main id="app"></main><nav id="nav" hidden></nav>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+<script>
+const db=supabase.createClient('https://jlvyqvtkthejziqzmhyl.supabase.co','sb_publishable_j9Qfwi0QYkX5mw-_oD6aaA_DQcFONuX');
+const W={home:['Bosh sahifa','Главная','Home'],students:['O‘quvchilar','Ученики','Students'],groups:['Guruhlar','Группы','Groups'],teachers:['O‘qituvchilar','Учителя','Teachers'],pay:['To‘lovlar','Оплаты','Payments'],gate:['Kirish','Вход','Check-in'],
+login:['Kirish','Войти','Sign in'],out:['Chiqish','Выйти','Sign out'],email:['Email','Email','Email'],pass:['Parol','Пароль','Password'],noaccess:['Ruxsat yo‘q','Нет доступа','No access'],
+name:['Ism familiya','Имя и фамилия','Full name'],phone:['O‘quvchi telefoni','Телефон ученика','Student phone'],parent:['Ota-ona telefoni','Телефон родителя','Parent phone'],tphone:['Telefon','Телефон','Phone'],group:['Guruh','Группа','Group'],teacher:['O‘qituvchi','Учитель','Teacher'],gname:['Guruh nomi','Название группы','Group name'],time:['Dars vaqti','Время урока','Lesson time'],price:['Oylik narx','Цена в месяц','Monthly price'],
+add:['Qo‘shish','Добавить','Add'],del:['O‘chirish','Удалить','Delete'],sure:['Aniqmi?','Точно?','Sure?'],search:['Qidirish','Поиск','Search'],code:['Shtrix-kod','Штрихкод','Barcode'],close:['Yopish','Закрыть','Close'],download:['Yuklab olish','Скачать','Download'],
+today:['Bugun keldi','Сегодня пришли','Came today'],month:['Oy tushumi','Доход за месяц','Month income'],debtors:['Qarzdorlar','Должники','Debtors'],lessons:['Bugungi darslar','Уроки сегодня','Today’s lessons'],
+scan:['Skanerlang yoki raqam yozing, Enter','Сканируйте или введите номер, Enter','Scan or type the number, Enter'],method:['To‘lov turi','Способ оплаты','Method'],cash:['Naqd','Наличные','Cash'],card:['Karta','Карта','Card'],amount:['Summa','Сумма','Amount'],accept:['To‘lovni qabul qilish','Принять оплату','Accept payment'],paid:['To‘langan','Оплачено','Paid'],debt:['Qarz','Долг','Debt'],late:['Muddati o‘tgan','Просрочено','Overdue'],due:['5-sanagacha','До 5 числа','Due by the 5th'],visits:['Oydagi tashriflar','Посещений за месяц','Visits this month'],
+in:['Kirdi','Вход','In'],left:['Chiqdi','Выход','Out'],already:['Allaqachon chiqqan','Уже вышел','Already left'],repeat:['5 daqiqa ichida qayta skan hisoblanmaydi','Повтор в первые 5 минут не считается','Repeat scan within 5 minutes ignored'],nf:['Topilmadi','Не найдено','Not found'],saved:['Saqlandi','Сохранено','Saved'],err:['Xatolik','Ошибка','Error'],empty:['Hozircha bo‘sh','Пока пусто','Nothing yet'],needphone:['Telefon raqamini yozing (kamida 9 raqam)','Укажите телефон (минимум 9 цифр)','Enter a phone (at least 9 digits)'],
+days:['Du,Se,Ch,Pa,Ju,Sh,Ya','Пн,Вт,Ср,Чт,Пт,Сб,Вс','Mon,Tue,Wed,Thu,Fri,Sat,Sun']};
+let L=1;try{L=+(localStorage.getItem('lang')??1)}catch(e){}
+const t=k=>W[k][L],$=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const now=()=>new Date(Date.now()+18e6).toISOString(),sum=n=>n.toLocaleString('ru-RU'),hm=s=>new Date(s).toLocaleTimeString('ru-RU',{timeZone:'Asia/Tashkent',hour:'2-digit',minute:'2-digit'});
+let user,ok,tab='home',S={s:[],g:[],t:[],p:[],v:[]},om=now().slice(0,7),sel=0,msg='',bad=false,armed='',visits=0,busy=false;
+const q=async p=>{const{data,error}=await p;if(error)throw error;return data};
+async function load(){const from=(n)=>db.from(n).select('*').order('id');
+const[s,g,te,p,v]=await Promise.all([q(from('students')),q(from('groups')),q(from('teachers')),q(from('payments').eq('month',om+'-01')),q(from('visits').eq('day',now().slice(0,10)))]);S={s,g,t:te,p,v}}
+const grp=id=>S.g.find(x=>x.id==id),tch=id=>S.t.find(x=>x.id==id),stu=id=>S.s.find(x=>x.id==id);
+const paid=id=>S.p.filter(p=>p.student_id==id).reduce((a,p)=>a+p.amount,0),left=s=>Math.max(0,(grp(s.group_id)?.price||0)-paid(s.id));
+const days=g=>g.days.map(d=>t('days').split(',')[d-1]).join(', '),time=g=>g.lesson_time?.slice(0,5)||'';
+const status=s=>left(s)?`<small class="red">${now().slice(0,10)>om+'-05'?t('late'):t('due')}: ${sum(left(s))}</small>`:`<small class="green">${t('paid')}</small>`;
+const row=(name,sub,right='')=>`<div class="row"><span class="ava">${esc(name[0])}</span><div><b>${esc(name)}</b>${sub}</div>${right}</div>`;
+const del=(table,id)=>`<button class="alt" data-del="${table}:${id}">${armed==table+':'+id?t('sure'):t('del')}</button>`;
+const inp=(n,k,type='text',extra='')=>`<input name="${n}" type="${type}" placeholder="${t(k)}" aria-label="${t(k)}" ${extra}>`;
+const opts=(list,key)=>list.map(x=>`<option value="${x.id}">${esc(x[key])}</option>`).join('');
+const card=(h,body)=>`<div class="card"><h2>${h}</h2>${body||`<small>${t('empty')}</small>`}</div>`;
+const V={
+home(){const d=(new Date(now()).getUTCDay()+6)%7+1,stat=(k,v)=>`<div class="card stat">${t(k)}<b>${v}</b></div>`;
+return `<div class="grid">${stat('students',S.s.length)}${stat('today',S.v.length)}${stat('month',sum(S.p.reduce((a,p)=>a+p.amount,0)))}${stat('debtors',S.s.filter(left).length)}</div><br>`+card(t('lessons'),S.g.filter(g=>g.days.includes(d)).map(g=>{const k=S.s.filter(s=>s.group_id==g.id),c=k.filter(s=>S.v.some(v=>v.student_id==s.id)).length;return row(g.name,`<small>${time(g)}, ${esc(tch(g.teacher_id)?.full_name)}</small><div class="bar"><i style="width:${k.length?c/k.length*100:0}%"></i></div>`,`<b>${c}/${k.length}</b>`)}).join(''))},
+students(){const s=stu(sel);return (s?`<div class="card" style="text-align:center"><h2>${esc(s.full_name)}</h2><canvas id="bc" style="max-width:100%"></canvas><br><button data-a="dl">${t('download')}</button> <button class="alt" data-a="close">${t('close')}</button></div>`:'')+
+`<form class="card" data-f="students"><h2>${t('add')}</h2>${inp('full_name','name','text','required')}${inp('phone','phone','tel')}${inp('parent_phone','parent','tel')}<select name="group_id" required aria-label="${t('group')}">${opts(S.g,'name')}</select><button>${t('add')}</button></form>`+
+card(`${t('students')}: ${S.s.length}`,inp('find','search','search','id="find"')+S.s.map(s=>`<div class="item">${row(s.full_name,`<small>№${s.id}, ${esc(grp(s.group_id)?.name)}</small><small>${esc(s.parent_phone||s.phone)}</small>${status(s)}`,`<button data-sel="${s.id}">${t('code')}</button>${del('students',s.id)}`)}</div>`).join(''))},
+groups(){return `<div class="grid">${S.g.map(g=>{const k=S.s.filter(s=>s.group_id==g.id);return `<div class="card"><h2>${esc(g.name)}</h2><small>${t('teacher')}: ${esc(tch(g.teacher_id)?.full_name)}</small><small>${days(g)} ${time(g)}</small><small>${sum(g.price)}</small>${k.map(s=>row(s.full_name,status(s))).join('')}<p>${del('groups',g.id)}</p></div>`}).join('')}</div><br><form class="card" data-f="groups"><h2>${t('add')}</h2>${inp('name','gname','text','required')}<select name="teacher_id" aria-label="${t('teacher')}">${opts(S.t,'full_name')}</select>${t('days').split(',').map((d,i)=>`<label><input type="checkbox" name="days" value="${i+1}">${d}</label>`).join('')}${inp('lesson_time','time','time','required')}${inp('price','price','number','required min="0"')}<button>${t('add')}</button></form>`},
+teachers(){return `<form class="card" data-f="teachers"><h2>${t('add')}</h2>${inp('full_name','name','text','required')}${inp('phone','tphone','tel','required')}<button>${t('add')}</button></form>`+card(t('teachers'),S.t.map(x=>row(x.full_name,`<small>${esc(x.phone)}</small><small>${S.g.filter(g=>g.teacher_id==x.id).map(g=>esc(g.name)).join(', ')}</small>`,del('teachers',x.id))).join(''))},
+pay(){const s=stu(sel);return `<div class="card"><input id="om" type="month" value="${om}" aria-label="month"><input id="scan" placeholder="${t('scan')}" aria-label="${t('scan')}">${s?row(s.full_name,`<small>№${s.id}, ${esc(grp(s.group_id)?.name)}</small>${status(s)}<small>${t('paid')}: ${sum(paid(s.id))}</small><small>${t('visits')}: ${visits}</small>`)+(left(s)?`<form data-f="payments"><input name="amount" type="number" min="1" value="${left(s)}" aria-label="${t('amount')}" required><select name="method" aria-label="${t('method')}"><option value="cash">${t('cash')}</option><option value="card">${t('card')}</option><option>Click</option><option>Payme</option></select><button>${t('accept')}</button></form>`:''):''}</div>`+card(t('students'),S.s.map(s=>row(s.full_name,status(s),`<button data-sel="${s.id}">${t('pay')}</button>`)).join(''))},
+gate(){return `<div class="card"><input id="scan" placeholder="${t('scan')}" aria-label="${t('scan')}"></div>`+card(t('today'),S.v.map(v=>row(stu(v.student_id)?.full_name||'?',`<small>${t('in')} ${hm(v.entered_at)}${v.left_at?`, ${t('left')} ${hm(v.left_at)}`:''}</small>`)).join(''))}};
+const langSel=()=>`<select id="lang" aria-label="Language">${['O‘zbekcha','Русский','English'].map((n,i)=>`<option value="${i}" ${i==L?'selected':''}>${n}</option>`).join('')}</select>`;
+function draw(){$('nav').hidden=!ok;const note=msg?`<div class="card ${bad?'red':'green'}" role="status"><b>${esc(msg)}</b></div>`:'';
+if(!ok){$('app').innerHTML=`<form class="card" data-f="login" style="max-width:360px;margin:10vh auto"><h1>Maftuna’s Academy</h1>${langSel()}${note}${user?`<button type="button" data-a="out">${t('out')}</button>`:inp('email','email','email','required')+inp('password','pass','password','required')+`<button>${t('login')}</button>`}</form>`;return}
+$('nav').innerHTML=Object.keys(V).map(k=>`<button class="${k==tab?'on':''}" data-tab="${k}">${t(k)}</button>`).join('')+`<button data-a="out">${t('out')}</button>`;
+$('app').innerHTML=`<small>Maftuna’s Academy, ${now().slice(0,10)}</small><h1>${t(tab)}</h1>${langSel()}${note}${V[tab]()}`;
+if(tab=='students'&&sel&&window.JsBarcode)JsBarcode('#bc',String(sel),{format:'CODE128',width:3,height:90});
+$('scan')?.focus()}
+const say=(m,b=false)=>{msg=m;bad=b};
+async function run(fn){if(busy)return;busy=true;try{await fn()}catch(e){console.error(e);say(`${t('err')}: ${e.message}`,true)}busy=false;draw()}
+async function start(){const{data}=await db.auth.getSession();user=data.session?.user;ok=false;if(user){ok=(await q(db.from('staff').select('role'))).length>0;if(ok)await load();else say(t('noaccess'),true)}}
+async function pick(id){sel=id;if(tab=='pay'){const[y,m]=om.split('-').map(Number),next=new Date(Date.UTC(y,m,1)).toISOString().slice(0,10);visits=(await q(db.from('visits').select('id').eq('student_id',id).gte('day',om+'-01').lt('day',next))).length}}
+async function scan(code){const s=stu(code);if(!s){sel=0;return say(t('nf'),true)}
+if(tab=='pay'){say('');return pick(s.id)}
+const day=now().slice(0,10),v=(await q(db.from('visits').select('*').eq('student_id',s.id).eq('day',day)))[0];
+if(!v){await q(db.from('visits').insert({student_id:s.id,day}));say(`${t('in')}: ${s.full_name}`)}
+else if(v.left_at)say(`${t('already')}: ${s.full_name}`,true);
+else if(Date.now()-new Date(v.entered_at)<3e5)say(t('repeat'),true);
+else{await q(db.from('visits').update({left_at:new Date().toISOString()}).eq('id',v.id));say(`${t('left')}: ${s.full_name}`)}
+await load()}
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,kind=f.dataset.f,fd=new FormData(f),o=Object.fromEntries(fd);run(async()=>{
+if(kind=='login'){say('');await q(db.auth.signInWithPassword(o));return start()}
+const digits=v=>(v||'').replace(/\D/g,'').length>=9;
+if(kind=='students'&&!digits(o.phone)&&!digits(o.parent_phone))return say(t('needphone'),true);
+if(kind=='teachers'&&!digits(o.phone))return say(t('needphone'),true);
+if(kind=='groups'){o.days=fd.getAll('days').map(Number);o.teacher_id=o.teacher_id||null}
+if(kind=='payments'){o.student_id=sel;o.month=om+'-01'}
+const r=await q(db.from(kind).insert(o).select());await load();say(t('saved'));if(kind=='students')sel=r[0].id})});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+if(d.tab){tab=d.tab;sel=0;armed='';say('');run(load)}
+if(d.sel)run(async()=>{await pick(+d.sel);scrollTo(0,0)});
+if(d.del)run(async()=>{if(armed!=d.del){armed=d.del;return}const[n,id]=d.del.split(':');armed='';await q(db.from(n).delete().eq('id',id));await load()});
+if(d.a=='close'){sel=0;draw()}
+if(d.a=='dl'){const a=document.createElement('a');a.href=$('bc').toDataURL();a.download=`kod-${sel}.png`;a.click()}
+if(d.a=='out')run(async()=>{await db.auth.signOut();user=null;ok=false;say('')})});
+document.addEventListener('change',e=>{if(e.target.id=='lang'){L=+e.target.value;try{localStorage.setItem('lang',L)}catch(x){}msg='';draw()}if(e.target.id=='om'){om=e.target.value||now().slice(0,7);sel=0;run(load)}});
+document.addEventListener('keydown',e=>{if(e.target.id=='scan'&&e.key=='Enter'){e.preventDefault();const c=e.target.value.trim();run(()=>scan(c))}});
+document.addEventListener('input',e=>{if(e.target.id=='find')document.querySelectorAll('.item').forEach(r=>r.hidden=!r.textContent.toLowerCase().includes(e.target.value.toLowerCase()))});
+run(start);
+</script>
+</body>
+</html>
